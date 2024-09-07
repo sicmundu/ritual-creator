@@ -21,18 +21,18 @@ Once Foundry is installed, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone <repository_url>
-   cd <repository_directory>
+   git clone https://github.com/sicmundu/ritual-creator.git
+   cd ritual-creator
    ```
 
 2. Make the script executable:
    ```bash
-   chmod +x script.sh
+   chmod +x ritual.sh
    ```
 
 3. Run the script:
    ```bash
-   ./script.sh
+   ./ritual.sh
    ```
 
 ### Note:
