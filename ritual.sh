@@ -60,12 +60,15 @@ install_forge() {
 
 # Функция для проверки и установки Docker
 install_docker() {
-  print_step "Проверка и установка Docker"
+   print_step "Установка необходимых пакетов и Docker"
+
+    # Обновление системы и установка необходимых пакетов
+  sudo apt update && sudo apt upgrade -y
+  sudo apt -qy install curl git jq lz4 build-essential screen apt-transport-https ca-certificates software-properties-common
+
+  # Проверка наличия Docker
   if ! command -v docker &> /dev/null; then
     echo -e "${GREEN}🐳 Docker не найден, начинаем установку...${NC}"
-    sudo apt update && sudo apt upgrade -y
-    sudo apt -qy install curl git jq lz4 build-essential screen
-    sudo apt install apt-transport-https ca-certificates curl software-properties-common -qy
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
     sudo apt install docker-ce -qy
