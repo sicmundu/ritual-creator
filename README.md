@@ -35,5 +35,13 @@ Once Foundry is installed, follow these steps:
    ./ritual.sh
    ```
 
+### 2. How to update:
+
+   ```bash
+   cd $HOME/ritual-creator
+   git pull
+   ```
+
+
 ### Note:
 Ensure that you have Docker and other required dependencies installed on your system.
