@@ -7,9 +7,6 @@ NC='\033[0m'  # No Color
 LOG_FILE="$HOME/processed.log"
 CONFIG_FILE="wallets.conf"
 
-echo -e "${BRIGHT_GREEN}-----------------------------------------------------------------------------${NC}"
-curl -s https://raw.githubusercontent.com/BananaAlliance/tools/main/logo.sh | bash
-echo -e "${BRIGHT_GREEN}-----------------------------------------------------------------------------${NC}"
 
 function print_step() {
   echo -e "${BRIGHT_GREEN}==================================================${NC}"
@@ -162,25 +159,33 @@ update_config_files() {
 
 # Функция для развертывания и обновления конфигурации
 deploy_and_update_config() {
-  print_step "Развертывание и обновление конфигурации"
-  cd ~/infernet-container-starter
-  output=$(make deploy-contracts project=hello-world 2>&1)
-  echo "$output"
-  contract_address=$(echo "$output" | grep -oP 'Deployed SaysHello:  \K[0-9a-fA-Fx]+')
-  if [ -z "$contract_address" ]; then
-    echo -e "${GREEN}Не удалось извлечь адрес контракта.${NC}"
-    return 1
-  else
-    echo -e "${GREEN}Извлеченный адрес контракта: $contract_address${NC}"
-  fi
+    print_step "Развертывание контракта и обновление конфигурации"
 
-  config_file="$HOME/infernet-container-starter/deploy/config.json"
-  jq --arg addr "$contract_address" '.containers[0].allowed_addresses = [$addr]' "$config_file" > temp.json && mv temp.json "$config_file"
-  solidity_file="$HOME/infernet-container-starter/projects/hello-world/contracts/script/CallContract.s.sol"
-  sed -i "s|SaysGM(.*);|SaysGM($contract_address);|" "$solidity_file"
-  restart_docker_services
-  echo -e "${GREEN}Solidity файл обновлен с новым адресом контракта.${NC}"
-  make call-contract project=hello-world
+    cd "$HOME/infernet-container-starter" || handle_error "Не удалось перейти в директорию проекта"
+    
+    echo -e "${BLUE}🚀 Развертывание контракта...${NC}"
+    output=$(make deploy-contracts project=hello-world 2>&1)
+    contract_address=$(echo "$output" | grep -oP 'Deployed SaysHello:  \K[0-9a-fA-Fx]+')
+
+    if [ -z "$contract_address" ]; then
+        handle_error "Не удалось извлечь адрес контракта"
+    fi
+
+    echo -e "${GREEN}✅ Контракт развернут по адресу: $contract_address${NC}"
+
+    local config_file="$HOME/infernet-container-starter/deploy/config.json"
+    jq --arg addr "$contract_address" '.containers[0].allowed_addresses = [$addr]' "$config_file" > tmp.json && mv tmp.json "$config_file"
+
+    local solidity_file="$HOME/infernet-container-starter/projects/hello-world/contracts/script/CallContract.s.sol"
+    sed -i "s|SaysGM(.*);|SaysGM($contract_address);|" "$solidity_file"
+
+    echo -e "${BLUE}🔄 Перезапуск Docker сервисов...${NC}"
+    docker-compose down && docker-compose up -d
+
+    echo -e "${BLUE}📞 Вызов контракта...${NC}"
+    make call-contract project=hello-world
+
+    echo -e "${GREEN}✅ Конфигурация обновлена и контракт вызван.${NC}"
 }
 
 restart_docker_services() {
@@ -240,6 +245,11 @@ process_wallet() {
 
 # Основной цикл по кошелькам
 main() {
+      echo -e "${BRIGHT_GREEN}
+    ╔════════════════════════════════════════════════╗
+    ║   Добро пожаловать в SDS Ritual Node Installer ║
+    ╚════════════════════════════════════════════════╝${NC}"
+
   print_step "Чтение конфигурационного файла с кошельками"
 
   # Чтение конфигурационного файла и обработка каждого кошелька
