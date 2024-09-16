@@ -97,17 +97,17 @@ setup_repository() {
     cd $HOME/infernet-container-starter
   else
     echo -e "${GREEN}Репозиторий не найден. Клонирование...${NC}"
-    git clone --recurse-submodules https://github.com/ritual-net/infernet-container-starter || handle_error "Клонирование репозитория"
-    cd infernet-container-starter
+    git clone --recurse-submodules https://github.com/ritual-net/infernet-container-starter $HOME/infernet-container-starter || handle_error "Клонирование репозитория"
+    cd $HOME/infernet-container-starter || handle_error "Переход в директорию репозитория"
   fi
 
   docker_compose_file="$HOME/infernet-container-starter/deploy/docker-compose.yaml"
 
   # Изменение портов в docker-compose.yaml
-  sed -i 's/8545:3000/8545:3051/' "$docker_compose_file"
-  sed -i 's/--port 3000/--port 3051/' "$docker_compose_file"
-  sed -i 's/3000:3000/3051:3051/' "$docker_compose_file"
-  sed -i 's/--bind=0.0.0.0:3000/--bind=0.0.0.0:3051/' "$docker_compose_file"
+  sed -i 's/8545:3000/8545:3051/' "$docker_compose_file" || handle_error "Изменение портов в docker-compose.yaml"
+  sed -i 's/--port 3000/--port 3051/' "$docker_compose_file" || handle_error "Изменение портов в docker-compose.yaml"
+  sed -i 's/3000:3000/3051:3051/' "$docker_compose_file" || handle_error "Изменение портов в docker-compose.yaml"
+  sed -i 's/--bind=0.0.0.0:3000/--bind=0.0.0.0:3051/' "$docker_compose_file" || handle_error "Изменение портов в docker-compose.yaml"
 
   screen -ls | grep "ritual" | cut -d. -f1 | awk '{print $1}' | xargs -I {} screen -S {} -X quit
   screen -dmS ritual
