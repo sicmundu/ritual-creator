@@ -38,7 +38,7 @@ Once Foundry is installed, follow these steps:
 ### 2. How to update:
 
    ```bash
-   cd $HOME/ritual-creator
+   git reset --hard HEAD
    git pull
    ```
 
